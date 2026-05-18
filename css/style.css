@@ -1,17 +1,17 @@
 /* ===== Design Tokens ===== */
 :root {
-  --bg: #0b1020;
-  --bg-soft: #11172c;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --text-soft: #475569;
-  --muted: #94a3b8;
+  --bg: #660300;
+  --bg-soft: #006623;
+  --surface: #A62E29;
+  --text: #006623;
+  --text-soft: #3EBB6A;
+  --muted: #E67773;
   --border: #e5e7eb;
 
-  --primary: #4f46e5;
-  --primary-2: #7c3aed;
-  --accent: #06b6d4;
-  --success: #10b981;
+  --primary: #A62E29;
+  --primary-2: #006623;
+  --accent: #3EBB6A;
+  --success: #10b92f;
   --warn: #f59e0b;
   --danger: #ef4444;
 
