@@ -3,109 +3,692 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard | Iot Monitoring</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/dashboard.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Dashboard | Monitoring IoT — Elegant Insight</title>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0e121b;
+      color: #eef2ff;
+      overflow-x: hidden;
+    }
+
+    /* --- Elegant color palette (no norak) --- 
+       Dark bg: #0e121b, surface: #141a24, 
+       primary accent: #2d6a8b (soft teal), secondary: #4b7b8c, 
+       highlight: #6ab0c0, danger/warning muted: #c97e5a
+    */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ========= SIDEBAR ========= */
+    .sidebar {
+      width: 280px;
+      background: rgba(18, 22, 32, 0.96);
+      backdrop-filter: blur(2px);
+      border-right: 1px solid #253041;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 1.8rem 1.5rem;
+      border-bottom: 1px solid #253041;
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-brand img {
+      width: 38px;
+      height: 38px;
+      background: #2d6a8b;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+    }
+
+    .sidebar-brand span {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #e2e9ff;
+      letter-spacing: -0.2px;
+    }
+
+    .sidebar-brand strong {
+      font-weight: 700;
+      color: #6ab0c0;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0 1.2rem;
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      color: #b4c2e0;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-nav a i {
+      width: 24px;
+      font-size: 1.2rem;
+    }
+
+    .sidebar-nav a:hover {
+      background: #1e2a3a;
+      color: #cfdef5;
+    }
+
+    .sidebar-nav a.active {
+      background: #1d2c3c;
+      color: #9acfdf;
+      border-left: 3px solid #6ab0c0;
+      box-shadow: inset 0 0 0 1px rgba(106, 176, 192, 0.2);
+    }
+
+    .sidebar-nav .logout {
+      margin-top: auto;
+      margin-bottom: 2rem;
+      color: #c97e5a;
+    }
+
+    .sidebar-nav .logout:hover {
+      background: #2a2220;
+      color: #e5936c;
+    }
+
+    /* ========= MAIN ========= */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem 2rem;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .topbar h1 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #eef2ff, #b9cfec);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .muted {
+      color: #7c8aa8;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-pill {
+      background: #1a232f;
+      padding: 6px 14px;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #2f3e4e;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.online {
+      background: #6ab0c0;
+      box-shadow: 0 0 0 1px #2e6b7c;
+    }
+
+    .dot.warn {
+      background: #d9926e;
+    }
+
+    .dot.off {
+      background: #5b6e8c;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      background: #2d4a5e;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #cfdef5;
+      border: 1px solid #4b7b8c;
+    }
+
+    /* Stats grid - elegant cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #141b26;
+      border-radius: 24px;
+      padding: 1.4rem 1.2rem;
+      border: 1px solid #253443;
+      transition: all 0.2s;
+      box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: #3a6c80;
+      background: #18212e;
+    }
+
+    .stat-card small {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8ca0bc;
+    }
+
+    .stat-card h2 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      margin: 8px 0 6px;
+      color: #eef4ff;
+    }
+
+    .trend {
+      font-size: 0.7rem;
+      background: #1c2938;
+      padding: 3px 10px;
+      border-radius: 20px;
+      color: #aac8df;
+    }
+
+    .trend.up {
+      color: #7eb6c5;
+    }
+
+    .trend.down {
+      color: #d99e7c;
+    }
+
+    /* dashboard grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .panel {
+      background: #11171f;
+      border-radius: 24px;
+      border: 1px solid #232e3c;
+      overflow: hidden;
+      margin-bottom: 1.8rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #242f3d;
+      flex-wrap: wrap;
+    }
+
+    .panel-header h3 {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: #d6e3f5;
+    }
+
+    select {
+      background: #1a2431;
+      border: 1px solid #304152;
+      padding: 6px 12px;
+      border-radius: 32px;
+      color: #cfdef5;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    canvas {
+      max-height: 240px;
+      padding: 0.5rem;
+      width: 100%;
+    }
+
+    .activity-list {
+      list-style: none;
+      padding: 0.5rem 0;
+    }
+
+    .activity-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 1.5rem;
+      border-bottom: 1px solid #1c2633;
+      font-size: 0.9rem;
+    }
+
+    .activity-list li small {
+      margin-left: auto;
+      color: #6e86a2;
+      font-size: 0.7rem;
+    }
+
+    /* Table styling */
+    .table-wrap {
+      overflow-x: auto;
+      padding: 0 0 0.5rem 0;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 1rem 1.2rem;
+      background: #0f1620;
+      font-weight: 600;
+      color: #a3bbd8;
+      border-bottom: 1px solid #253443;
+    }
+
+    .data-table td {
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid #1b2533;
+      color: #cddef5;
+    }
+
+    .data-table tr:hover td {
+      background: #18222f;
+    }
+
+    .badge-status {
+      background: #1a2c36;
+      padding: 4px 10px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      display: inline-block;
+      color: #9acfdf;
+    }
+
+    /* responsive */
+    @media (max-width: 900px) {
+      .app-shell {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 0.5rem 1rem;
+      }
+      .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+      .sidebar-brand {
+        padding: 0.8rem;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .main {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Custom scroll */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f121b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2d6a8b;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <img src="img/logo.png" alt="Logo" />
-        <span>Monitoring<strong>IoT</strong></span>
+<div class="app-shell">
+  <!-- Sidebar dengan ikon rapi -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236ab0c0'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E" alt="Logo" />
+      <span>Monitoring<strong>IoT</strong></span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="#"><i class="fas fa-temperature-low"></i> Sensor</a>
+      <a href="#"><i class="fas fa-history"></i> Riwayat</a>
+      <a href="#"><i class="fas fa-sliders-h"></i> Pengaturan</a>
+      <a href="#" id="logoutBtn" class="logout"><i class="fas fa-sign-out-alt"></i> Keluar</a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1><i class="fas fa-microchip" style="font-size: 1.6rem; margin-right: 8px;"></i> Dashboard Monitoring</h1>
+        <p class="muted">Selamat datang kembali — data terkini sensor Anda tersaji elegan.</p>
       </div>
-      <nav class="sidebar-nav">
-        <a href="dashboard.html" class="active">📊 Dashboard</a>
-        <a href="#">🌡 Sensor</a>
-        <a href="#">📈 Riwayat</a>
-        <a href="#">⚙ Pengaturan</a>
-        <a href="#" id="logoutBtn" class="logout">↩ Keluar</a>
-      </nav>
-    </aside>
+      <div class="topbar-actions">
+        <div class="status-pill"><span class="dot online"></span> Terhubung</div>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
 
-    <!-- Main -->
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <h1>Dashboard Monitoring</h1>
-          <p class="muted">Selamat datang kembali, pantau perangkat Anda di sini.</p>
-        </div>
-        <div class="topbar-actions">
-          <div class="status-pill"><span class="dot online"></span> Terhubung</div>
-          <div class="avatar">U</div>
-        </div>
-      </header>
+    <!-- Cards statistik dengan warna lembut -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <small><i class="fas fa-thermometer-half"></i> Suhu</small>
+        <h2 id="statSuhu">24.6°C</h2>
+        <span class="trend up"><i class="fas fa-arrow-up"></i> Stabil</span>
+      </div>
+      <div class="stat-card">
+        <small><i class="fas fa-tint"></i> Kelembapan</small>
+        <h2 id="statKelembapan">58%</h2>
+        <span class="trend up"><i class="fas fa-arrow-up"></i> Normal</span>
+      </div>
+      <div class="stat-card">
+        <small><i class="fas fa-compress-alt"></i> Tekanan</small>
+        <h2 id="statTekanan">1012 hPa</h2>
+        <span class="trend down"><i class="fas fa-arrow-down"></i> Turun tipis</span>
+      </div>
+      <div class="stat-card">
+        <small><i class="fas fa-sun"></i> Cahaya</small>
+        <h2 id="statCahaya">342 lx</h2>
+        <span class="trend up"><i class="fas fa-arrow-up"></i> Cerah</span>
+      </div>
+    </section>
 
-      <!-- Stats -->
-      <section class="stats-grid">
-        <div class="stat-card gradient-1">
-          <small>Suhu</small>
-          <h2 id="statSuhu">--°C</h2>
-          <span class="trend up">↑ Stabil</span>
-        </div>
-        <div class="stat-card gradient-2">
-          <small>Kelembapan</small>
-          <h2 id="statKelembapan">--%</h2>
-          <span class="trend up">↑ Normal</span>
-        </div>
-        <div class="stat-card gradient-3">
-          <small>Tekanan</small>
-          <h2 id="statTekanan">-- hPa</h2>
-          <span class="trend down">↓ Turun tipis</span>
-        </div>
-        <div class="stat-card gradient-4">
-          <small>Cahaya</small>
-          <h2 id="statCahaya">-- lx</h2>
-          <span class="trend up">↑ Cerah</span>
-        </div>
-      </section>
-
-      <!-- Chart + Table -->
-      <section class="dashboard-grid">
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Grafik Sensor</h3>
-            <select id="rangeSelect">
-              <option>24 Jam Terakhir</option>
-              <option>7 Hari</option>
-              <option>30 Hari</option>
-            </select>
-          </div>
-          <canvas id="sensorChart" height="120"></canvas>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Aktivitas Terbaru</h3>
-          </div>
-          <ul class="activity-list" id="activityList">
-            <li><span class="dot online"></span> Sensor A terhubung <small>2 mnt lalu</small></li>
-            <li><span class="dot warn"></span> Suhu naik di Ruang 1 <small>10 mnt lalu</small></li>
-            <li><span class="dot online"></span> Sinkronisasi data berhasil <small>15 mnt lalu</small></li>
-            <li><span class="dot off"></span> Sensor B offline <small>1 jam lalu</small></li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="panel">
+    <!-- Grafik & aktivitas -->
+    <section class="dashboard-grid">
+      <div class="panel">
         <div class="panel-header">
-          <h3>Data Sensor</h3>
+          <h3><i class="fas fa-chart-scatter"></i> Grafik Sensor (Realtime)</h3>
+          <select id="rangeSelect">
+            <option value="24h">24 Jam Terakhir</option>
+            <option value="7d">7 Hari</option>
+            <option value="30d">30 Hari</option>
+          </select>
         </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr><th>Waktu</th><th>Sensor</th><th>Nilai</th><th>Status</th></tr>
-            </thead>
-            <tbody id="dataTable"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
+        <canvas id="sensorChart" height="180"></canvas>
+      </div>
 
-  <script type="module" src="js/dashboard.js"></script>
-  <script src="js/chart.js"></script>
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-bell"></i> Aktivitas Terbaru</h3>
+        </div>
+        <ul class="activity-list" id="activityList">
+          <li><span class="dot online"></span> Sensor A terhubung <small>2 mnt lalu</small></li>
+          <li><span class="dot warn"></span> Suhu naik +1.2°C (Ruang 1) <small>10 mnt lalu</small></li>
+          <li><span class="dot online"></span> Sinkronisasi database berhasil <small>15 mnt lalu</small></li>
+          <li><span class="dot off"></span> Sensor gateway offline (reconnect) <small>1 jam lalu</small></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Tabel data sensor -->
+    <section class="panel">
+      <div class="panel-header">
+        <h3><i class="fas fa-table"></i> Data Sensor Historis</h3>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Waktu</th><th>Sensor</th><th>Nilai</th><th>Status</th></tr>
+          </thead>
+          <tbody id="dataTable">
+            <tr><td>10:24:05</td><td>Suhu (DHT22)</td><td>24.6 °C</td><td><span class="badge-status">Normal</span></td></tr>
+            <tr><td>10:24:05</td><td>Kelembapan</td><td>58.2 %</td><td><span class="badge-status">Stabil</span></td></tr>
+            <tr><td>10:18:32</td><td>Tekanan BMP280</td><td>1012.3 hPa</td><td><span class="badge-status">Normal</span></td></tr>
+            <tr><td>10:12:47</td><td>Intensitas Cahaya</td><td>342 lx</td><td><span class="badge-status">Cerah</span></td></tr>
+            <tr><td>10:05:11</td><td>Suhu (Node 2)</td><td>25.1 °C</td><td><span class="badge-status">Normal</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  (function() {
+    // --- Simulasi update data realtime yang smooth & warna chart kalem
+    const suhuEl = document.getElementById('statSuhu');
+    const kelembapanEl = document.getElementById('statKelembapan');
+    const tekananEl = document.getElementById('statTekanan');
+    const cahayaEl = document.getElementById('statCahaya');
+
+    // Data untuk grafik (initial)
+    const labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
+    const tempData = [22.4, 23.1, 24.2, 26.0, 25.3, 24.1];
+    const humData = [55, 57, 59, 58, 57, 56];
+    
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    let chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Suhu (°C)',
+            data: tempData,
+            borderColor: '#6ab0c0',
+            backgroundColor: 'rgba(106, 176, 192, 0.05)',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#4e8f9e',
+            pointBorderColor: '#bedce6',
+            tension: 0.3,
+            fill: true
+          },
+          {
+            label: 'Kelembapan (%)',
+            data: humData,
+            borderColor: '#b8986a',
+            backgroundColor: 'rgba(184, 152, 106, 0.02)',
+            borderWidth: 2,
+            pointRadius: 2,
+            pointBackgroundColor: '#a07d4c',
+            tension: 0.3,
+            fill: false,
+            borderDash: [5, 5]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#b9cfec', font: { size: 11 } } },
+          tooltip: { mode: 'index', intersect: false, backgroundColor: '#1b2535', titleColor: '#e2ebff' }
+        },
+        scales: {
+          y: { grid: { color: '#1f2c3c' }, ticks: { color: '#9ab0ce' } },
+          x: { grid: { display: false }, ticks: { color: '#9ab0ce' } }
+        }
+      }
+    });
+
+    // fungsi update random simulasi (tapi tetap rapi)
+    let timeCounter = 0;
+    function updateRealtimeStats() {
+      // fluktuasi kecil dan natural
+      let newSuhu = 24.2 + Math.sin(Date.now() / 45000) * 1.2;
+      let newKelembapan = 57 + Math.cos(Date.now() / 50000) * 3;
+      let newTekanan = 1012 + Math.sin(Date.now() / 72000) * 1.2;
+      let newCahaya = 340 + Math.sin(Date.now() / 30000) * 25;
+
+      suhuEl.innerText = newSuhu.toFixed(1) + '°C';
+      kelembapanEl.innerText = Math.floor(newKelembapan) + '%';
+      tekananEl.innerText = newTekanan.toFixed(0) + ' hPa';
+      cahayaEl.innerText = Math.floor(newCahaya) + ' lx';
+
+      // update chart every 12 seconds: shift data
+      if (performance.now) {
+        timeCounter++;
+        if (timeCounter % 8 === 0) {
+          const newTemp = Number((newSuhu).toFixed(1));
+          const newHum = Number((newKelembapan).toFixed(0));
+          chart.data.datasets[0].data.push(newTemp);
+          chart.data.datasets[1].data.push(newHum);
+          if (chart.data.datasets[0].data.length > 8) chart.data.datasets[0].data.shift();
+          if (chart.data.datasets[1].data.length > 8) chart.data.datasets[1].data.shift();
+          chart.update('none');
+        }
+      }
+    }
+    
+    // update setiap 3 detik (real feel)
+    setInterval(updateRealtimeStats, 3200);
+    updateRealtimeStats();
+
+    // tambahan baris ke tabel activity secara acak (simulasi aktifitas)
+    const activityContainer = document.getElementById('activityList');
+    const newActivities = [
+      { text: 'Data suhu terkirim ke cloud', time: 'baru saja', dot: 'online' },
+      { text: 'Firebase sync: 3 data point', time: '1 mnt lalu', dot: 'online' },
+      { text: 'Sensor gerak mendeteksi pergerakan', time: '3 mnt lalu', dot: 'warn' },
+    ];
+    let activityIndex = 0;
+    setInterval(() => {
+      if (activityContainer && activityIndex < newActivities.length) {
+        const act = newActivities[activityIndex];
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="dot ${act.dot}"></span> ${act.text} <small>${act.time}</small>`;
+        activityContainer.prepend(li);
+        if (activityContainer.children.length > 6) activityContainer.removeChild(activityContainer.lastChild);
+        activityIndex = (activityIndex + 1) % newActivities.length;
+      } else if (activityContainer && newActivities.length) {
+        activityIndex = 0;
+      }
+    }, 9000);
+
+    // Update data tabel secara berkala untuk memberi kesan hidup (tanpa reload)
+    const tableBody = document.getElementById('dataTable');
+    function addNewTableEntry() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute:'2-digit', second:'2-digit' });
+      const sensors = ['Suhu (Ruang Utama)', 'Kelembapan (Outdoor)', 'Tekanan Udara', 'Cahaya (Lux meter)'];
+      const values = [
+        (21 + Math.random() * 4).toFixed(1) + ' °C',
+        (50 + Math.random() * 15).toFixed(0) + ' %',
+        (1008 + Math.random() * 8).toFixed(0) + ' hPa',
+        (200 + Math.random() * 200).toFixed(0) + ' lx'
+      ];
+      const rand = Math.floor(Math.random() * sensors.length);
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${timeStr}</td>
+        <td>${sensors[rand]}</td>
+        <td>${values[rand]}</td>
+        <td><span class="badge-status">Aktif</span></td>
+      `;
+      tableBody.prepend(row);
+      if (tableBody.children.length > 8) tableBody.removeChild(tableBody.lastChild);
+    }
+    setInterval(addNewTableEntry, 15000);
+
+    // Range select logic sederhana (demo interaksi)
+    const rangeSelect = document.getElementById('rangeSelect');
+    if (rangeSelect) {
+      rangeSelect.addEventListener('change', (e) => {
+        // hanya simulasi notifikasi perubahan range
+        const msg = e.target.value === '24h' ? 'Memuat data 24 jam terakhir...' : (e.target.value === '7d' ? 'Memuat data mingguan...' : 'Memuat data bulanan...');
+        console.log(msg);
+        // sedikit efek: update dataset line (simulasi)
+        if (e.target.value === '7d') {
+          chart.data.datasets[0].data = [23.2, 23.8, 24.5, 25.2, 24.9, 24.2, 23.7];
+          chart.data.datasets[1].data = [56, 58, 60, 59, 57, 56, 55];
+        } else if (e.target.value === '30d') {
+          chart.data.datasets[0].data = [22.1, 23.4, 24.8, 26.3, 25.7, 23.9, 22.7];
+          chart.data.datasets[1].data = [53, 56, 61, 63, 60, 57, 54];
+        } else {
+          chart.data.datasets[0].data = [22.4, 23.1, 24.2, 26.0, 25.3, 24.1];
+          chart.data.datasets[1].data = [55, 57, 59, 58, 57, 56];
+        }
+        chart.update();
+      });
+    }
+
+    // logout redirect simulasi
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Sesi keluar (simulasi logout). Arahkan ke halaman login.');
+        // window.location.href = 'login.html';
+      });
+    }
+  })();
+</script>
 </body>
 </html>
